@@ -151,13 +151,15 @@ function clear(canid){
     axis('plot');
 }
 
+$('#clear').click(()=>clear('plot'));
+
 function axis(canid){
     let canvas = document.getElementById(canid);
     let w = canvas.width;
     let h = canvas.height;
     let ctx = canvas.getContext('2d');
 
-    ctx.strokeStyle = 'black';
+    ctx.strokeStyle = 'white';
 
     ctx.beginPath();
     let y0 = (0 - imin) / (imax - imin) * h;

@@ -1,3 +1,11 @@
+let layout = {
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    font: {
+        color: "white"
+    }
+}
+
 function fileContent(f,callback){
     const reader = new FileReader();
     reader.addEventListener('load', (event) => {
@@ -30,17 +38,11 @@ function load(f){
             electrodes[en-1].addPoint(p,vs,v,i);
         });
         generateSelect();
-        findBoundries();
-        axis('plot');
         console.log(electrodes);
     });
 }
 
 let electrodes = [];
-let imin = null;
-let imax = null;
-let vmin = null;
-let vmax = null;
 
 function generateSelect(){
     let select = $('#electrodesSelect');
@@ -49,17 +51,6 @@ function generateSelect(){
         select.append(`<option value="${i+1}">Electrode #${i+1}</option>`);
     }
 }
-
-function findBoundries(){
-    electrodes.forEach((e)=>{
-        imin = Math.min(imin,e.getMin('i'));
-        imax = Math.max(imax,e.getMax('i'));
-        vmin = Math.min(vmin,e.getMin('v'));
-        vmax = Math.max(vmax,e.getMax('v'));
-    })
-    console.log("limits",imin,imax,vmin,vmax);
-}
-
 
 class Electrode{
     constructor(n){
@@ -72,44 +63,17 @@ class Electrode{
         this.passes[pass-1].push({vs:vs,v:v,i:i});
     }
 
-    plot(canid,pass){
-        let canvas = document.getElementById(canid);
-        let w = canvas.width;
-        let h = canvas.height;
-        let ctx = canvas.getContext('2d');
-
-        let voltages = this.getValues(pass,'v');
-        let intensities = this.getValues(pass,'i');
-
-        ctx.strokeStyle = 'blue';
-
-        ctx.beginPath();
-        voltages.forEach((v,j)=>{
-            let i = intensities[j];
-            let x = (v - vmin) / (vmax - vmin) * w;
-            let y = (i - imin) / (imax - imin) * h;
-            if(j == 0) ctx.moveTo(x,y);
-            else ctx.lineTo(x,y);
-            ctx.stroke();
-        })
-    }
-
-    getMin(item){
-        let min = null;
-        this.passes.forEach((e,i)=>{
-            let data = this.getValues(i+1,item);
-            min = Math.min(min,...data);
-        })
-        return min;
-    }
-
-    getMax(item){
-        let max = null;
-        this.passes.forEach((e,i)=>{
-            let data = this.getValues(i+1,item);
-            max = Math.max(max,...data);
-        })
-        return max;
+    plotly(canid){
+        let data = [];
+        for(let i = 0; i < this.passes.length; i++){
+            data.push({
+                name:`Pass #${i+1}`,
+                x: this.getValues(i+1,'v'),
+                y: this.getValues(i+1,'i'),
+                type: 'scatter'
+            });
+        }
+        Plotly.newPlot(canid,data,layout);
     }
 
     getValues(pass,item){
@@ -122,54 +86,13 @@ function selectElectrode(){
     let e = $('#electrodesSelect').val();
     if(isNaN(e)) return 0;
 
-    clear('plot');
-
     let npass = electrodes[e-1].passes.length;
     let pselect = $('#passesSelect');
     pselect.html('<option selected>-</option>');
     for(let i = 0; i < npass; i++){
         pselect.append(`<option value="${i+1}">${i+1}</option>`)
     }
+    electrodes[e-1].plotly('plotly');
 }
 
 $('#electrodesSelect').change(selectElectrode);
-
-function selectPass(){
-    let e = $('#electrodesSelect').val();
-    let p = $('#passesSelect').val();
-    electrodes[e-1].plot('plot',p);
-}
-
-$('#passesSelect').change(selectPass);
-
-function clear(canid){
-    let canvas = document.getElementById(canid);
-    let w = canvas.width;
-    let h = canvas.height;
-    let ctx = canvas.getContext('2d');
-    ctx.clearRect(0,0,w,h);
-    axis('plot');
-}
-
-$('#clear').click(()=>clear('plot'));
-
-function axis(canid){
-    let canvas = document.getElementById(canid);
-    let w = canvas.width;
-    let h = canvas.height;
-    let ctx = canvas.getContext('2d');
-
-    ctx.strokeStyle = 'white';
-
-    ctx.beginPath();
-    let y0 = (0 - imin) / (imax - imin) * h;
-    ctx.moveTo(0,y0);
-    ctx.lineTo(w,y0);
-    ctx.stroke();
-
-    ctx.beginPath();
-    let x0 = (0 - vmin) / (vmax - vmin) * w;
-    ctx.moveTo(x0,0);
-    ctx.lineTo(x0,h);
-    ctx.stroke();
-}

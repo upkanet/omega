@@ -75,7 +75,9 @@ function saveElectrodesToCookie(){
 }
 
 function loadElectrodesFromCookie(){
-    let elchecked = JSON.parse(getCookie('elchecked'));
+    let a = getCookie('elchecked');
+    if(a.length == 0) return 0;
+    let elchecked = JSON.parse(a);
     console.log('elchecked from cookies',elchecked);
     elchecked.forEach(en=>{
         $(`#E${en}`).prop('checked',true);

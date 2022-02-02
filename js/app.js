@@ -59,7 +59,23 @@ function generateSelect(){
         select.append(`<option value="${i+1}">Electrode #${i+1}</option>`);
         check.append(`<input type="checkbox" class="btn-check el-check" id="E${i+1}" value="${i+1}"><label class="btn btn-outline-primary" for="E${i+1}">E${i+1}</label>`);
     }
-    $('.el-check').click(multiElectrode);
+    loadElectrodesFromCookie();
+    $('.el-check').click(elCheckBinder);
+}
+
+function elCheckBinder(){
+    saveElectrodesToCookie();
+    multiElectrode();
+}
+
+function saveElectrodesToCookie(){
+    let elchecked = JSON.stringify(getCheckedElectrodes());
+    document.cookie = `elchecked=${elchecked};max-age=${604800000}`;
+    console.log("cookie saved", document.cookie);
+}
+
+function loadElectrodesFromCookie(){
+    console.log("cookie retrieved", document.cookie);
 }
 
 class Electrode{

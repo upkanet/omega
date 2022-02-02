@@ -144,18 +144,23 @@ function getCheckedElectrodes(){
 }
 
 function multiElectrode(){
+    let data = multiElectrodeData();
+    Plotly.newPlot('multiplotly',data,layout);
+}
+
+function multiElectrodeData(){
     let elchecked = getCheckedElectrodes();
     if(elchecked.length == 0) return 0;
-
+    
     let data = [];
     elchecked.forEach((en)=>{
         let d = electrodes[en-1].plotdata();
         data = data.concat(d);
     })
-
+    
     data = avgPlot(data);
 
-    Plotly.newPlot('multiplotly',data,layout);
+    return data;
 }
 
 function avgPlot(data){
@@ -201,4 +206,45 @@ function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
-  }
+}
+
+function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+}
+
+function genCSV(){
+    let data = multiElectrodeData();
+    if(data == undefined || data == 0 || data.length == 0) return 0;
+    let txt = '';
+    let d = data[0];
+    for(let i = 0; i < d.x.length; i++){
+        txt += `${d.x[i]},${d.y[i]}\n`;
+    }
+
+    let fn = filename();
+
+    download(`${fn}.csv`,txt);
+}
+
+$('#gencsv-btn').click(genCSV);
+
+function filename(){
+    var fullPath = document.getElementById('upload').value;
+    if (fullPath) {
+        var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+        var filename = fullPath.substring(startIndex);
+        if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+            filename = filename.substring(1);
+        }
+        return filename.split('.')[0];
+    }
+}

@@ -3,6 +3,12 @@ let layout = {
     plot_bgcolor: "rgba(0,0,0,0)",
     font: {
         color: "white"
+    },
+    xaxis:{
+        title:"V"
+    },
+    yaxis:{
+        title:"I"
     }
 }
 
@@ -46,10 +52,14 @@ let electrodes = [];
 
 function generateSelect(){
     let select = $('#electrodesSelect');
+    let check = $('#checkElectrodes');
     select.html('<option selected>-</option>');
+    check.html('');
     for(let i = 0;i<electrodes.length;i++){
         select.append(`<option value="${i+1}">Electrode #${i+1}</option>`);
+        check.append(`<input type="checkbox" class="btn-check el-check" id="E${i+1}" value="${i+1}"><label class="btn btn-outline-primary" for="E${i+1}">E${i+1}</label>`);
     }
+    $('.el-check').click(multiElectrode);
 }
 
 class Electrode{
@@ -64,16 +74,21 @@ class Electrode{
     }
 
     plotly(canid){
+        let data = this.plotdata();
+        Plotly.newPlot(canid,data,layout);
+    }
+    
+    plotdata(){
         let data = [];
         for(let i = 0; i < this.passes.length; i++){
             data.push({
-                name:`Pass #${i+1}`,
+                name:`E${this.n} Pass #${i+1}`,
                 x: this.getValues(i+1,'v'),
                 y: this.getValues(i+1,'i'),
                 type: 'scatter'
             });
-        }
-        Plotly.newPlot(canid,data,layout);
+        }    
+        return data;
     }
 
     getValues(pass,item){
@@ -96,3 +111,65 @@ function selectElectrode(){
 }
 
 $('#electrodesSelect').change(selectElectrode);
+
+function getCheckedElectrodes(){
+    let elchecked = [];
+    $('.el-check:checked').each((i,e)=>{
+        elchecked.push(Number(e.value));
+    })
+    return elchecked;
+}
+
+function multiElectrode(){
+    let elchecked = getCheckedElectrodes();
+    if(elchecked.length == 0) return 0;
+
+    let data = [];
+    elchecked.forEach((en)=>{
+        let d = electrodes[en-1].plotdata();
+        data = data.concat(d);
+    })
+
+    data = avgPlot(data);
+
+    Plotly.newPlot('multiplotly',data,layout);
+}
+
+function avgPlot(data){
+    if(data.length == 0)  return [];
+    let ydata = [];
+    data.forEach((d)=>{
+        ydata.push(d.y);
+    })
+    let nydata = [];
+    for(let i=0; i< ydata[0].length;i++){
+        let sum = 0;
+        for(let j = 0; j < ydata.length;j++){
+            sum += ydata[j][i];
+        }
+        nydata[i] = sum / ydata.length;
+    }
+
+    return [{
+        name: 'Average',
+        x: data[0].x,
+        y: nydata,
+        type: 'scatter'
+    }]
+}
+
+function selectNext(){
+    let el = $('#electrodesSelect option:selected');
+    el.removeAttr('selected');
+    el.next().attr('selected','selected').change();
+
+}
+
+function selectPrev(){
+    let el = $('#electrodesSelect option:selected');
+    el.removeAttr('selected');
+    el.prev().attr('selected','selected').change();
+}
+
+$('#prev-btn').click(selectPrev);
+$('#next-btn').click(selectNext);

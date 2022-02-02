@@ -79,7 +79,8 @@ function loadElectrodesFromCookie(){
     console.log('elchecked from cookies',elchecked);
     elchecked.forEach(en=>{
         $(`#E${en}`).prop('checked',true);
-    })
+    });
+    multiElectrode();
 }
 
 class Electrode{

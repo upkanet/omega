@@ -75,7 +75,11 @@ function saveElectrodesToCookie(){
 }
 
 function loadElectrodesFromCookie(){
-    console.log("cookie retrieved", document.cookie);
+    let elchecked = JSON.parse(getCookie('elchecked'));
+    console.log('elchecked from cookies',elchecked);
+    elchecked.forEach(en=>{
+        $(`#E${en}`).prop('checked',true);
+    })
 }
 
 class Electrode{
@@ -189,3 +193,9 @@ function selectPrev(){
 
 $('#prev-btn').click(selectPrev);
 $('#next-btn').click(selectNext);
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }

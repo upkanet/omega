@@ -15,9 +15,11 @@ let layout = {
 }
 
 let electrodes = [];
+let fullPath = "";
 
 $('#uploadCV').change((e)=>{
     let f = e.target.files[0];
+    fullPath = document.getElementById('uploadCV').value;
     loadCV(f).then((e)=>{
         electrodes = e;
         generateSelect();
@@ -27,6 +29,7 @@ $('#uploadCV').change((e)=>{
 
 $('#uploadEIS').change((e)=>{
     let f = e.target.files[0];
+    fullPath = document.getElementById('uploadEIS').value;
     loadEIS(f).then((e)=>{
         electrodes = e;
         console.log(electrodes);
@@ -189,7 +192,6 @@ function genCSV(){
 $('#gencsv-btn').click(genCSV);
 
 function filename(){
-    var fullPath = document.getElementById('upload').value;
     if (fullPath) {
         var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
         var filename = fullPath.substring(startIndex);

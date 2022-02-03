@@ -1,5 +1,4 @@
-import {testImport} from './electrodes.js';
-testImport();
+import {load} from './file.js';
 
 let layout = {
     paper_bgcolor: "rgba(0,0,0,0)",
@@ -15,41 +14,13 @@ let layout = {
     }
 }
 
-function fileContent(f,callback){
-    const reader = new FileReader();
-    reader.addEventListener('load', (event) => {
-        callback(event.target.result);
-    });
-    reader.readAsText(f);
-}
-
-
 $('#upload').change((e)=>{
     let f = e.target.files[0];
-    load(f);
-})
-
-function load(f){
-    fileContent(f,(c)=>{
-        let lines = c.split(/\r?\n/);
-        let en = '';
-        let vs = '';
-        lines.forEach(l => {
-            let d = l.split(';');
-            if(d.length != 5) return 0;
-
-            if(d[0] != '') en = Number(d[0]);
-            if(d[1] != '') vs = Number(d[1]);
-            let v = Number(d[2]);
-            let i = Number(d[3]);
-            let p = Number(d[4]);
-            if(electrodes[en-1] === undefined) electrodes[en-1] = new Electrode(en);
-            electrodes[en-1].addPoint(p,vs,v,i);
-        });
+    load(f).then((e)=>{
+        electrodes = e;
         generateSelect();
-        console.log(electrodes);
     });
-}
+})
 
 let electrodes = [];
 
@@ -88,41 +59,6 @@ function loadElectrodesFromCookie(){
     multiElectrode();
 }
 
-class Electrode{
-    constructor(n){
-        this.n = n;
-        this.passes = [];
-    }
-
-    addPoint(pass,vs,v,i){
-        if(this.passes[pass-1] === undefined) this.passes[pass-1] = [];
-        this.passes[pass-1].push({vs:vs,v:v,i:i});
-    }
-
-    plotly(canid){
-        let data = this.plotdata();
-        Plotly.newPlot(canid,data,layout);
-    }
-    
-    plotdata(){
-        let data = [];
-        for(let i = 0; i < this.passes.length; i++){
-            data.push({
-                name:`E${this.n} Pass #${i+1}`,
-                x: this.getValues(i+1,'v'),
-                y: this.getValues(i+1,'i'),
-                type: 'scatter'
-            });
-        }    
-        return data;
-    }
-
-    getValues(pass,item){
-        return this.passes[pass-1].map(e => e[item]);
-    }
-
-}
-
 function selectElectrode(){
     let e = $('#electrodesSelect').val();
     if(isNaN(e)) return 0;
@@ -133,7 +69,8 @@ function selectElectrode(){
     for(let i = 0; i < npass; i++){
         pselect.append(`<option value="${i+1}">${i+1}</option>`)
     }
-    electrodes[e-1].plotly('plotly');
+    // electrodes[e-1].plotly('plotly');
+    Plotly.newPlot('plotly',electrodes[e-1].plotdata(),layout);
 }
 
 $('#electrodesSelect').change(selectElectrode);

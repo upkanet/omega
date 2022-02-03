@@ -4,9 +4,19 @@ class Electrode{
         this.passes = [];
     }
 
-    addPoint(pass,vs,v,i){
+    addPointCV(pass,vs,v,i){
         if(this.passes[pass-1] === undefined) this.passes[pass-1] = [];
+        this.xitem = 'v';
+        this.yitem = 'i';
         this.passes[pass-1].push({vs:vs,v:v,i:i});
+    }
+
+    addPointEIS(f,m,a){
+        let pass = 1;
+        if(this.passes[pass-1] === undefined) this.passes[pass-1] = [];
+        this.xitem = 'a';
+        this.yitem = 'f';
+        this.passes[pass-1].push({f:f,m:m,a:a});
     }
 
     plotly(canid){
@@ -19,8 +29,8 @@ class Electrode{
         for(let i = 0; i < this.passes.length; i++){
             data.push({
                 name:`E${this.n} Pass #${i+1}`,
-                x: this.getValues(i+1,'v'),
-                y: this.getValues(i+1,'i'),
+                x: this.getValues(i+1,this.xitem),
+                y: this.getValues(i+1,this.yitem),
                 type: 'scatter'
             });
         }    

@@ -1,4 +1,4 @@
-import {load} from './file.js';
+import {loadCV,loadEIS} from './file.js';
 
 let layout = {
     paper_bgcolor: "rgba(0,0,0,0)",
@@ -16,10 +16,20 @@ let layout = {
 
 let electrodes = [];
 
-$('#upload').change((e)=>{
+$('#uploadCV').change((e)=>{
     let f = e.target.files[0];
-    load(f).then((e)=>{
+    loadCV(f).then((e)=>{
         electrodes = e;
+        generateSelect();
+        selectNext();
+    });
+})
+
+$('#uploadEIS').change((e)=>{
+    let f = e.target.files[0];
+    loadEIS(f).then((e)=>{
+        electrodes = e;
+        console.log(electrodes);
         generateSelect();
         selectNext();
     });

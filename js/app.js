@@ -35,7 +35,7 @@ function load(f){
         let en = '';
         let vs = '';
         lines.forEach(l => {
-            d = l.split(';');
+            let d = l.split(';');
             if(d.length != 5) return 0;
 
             if(d[0] != '') en = Number(d[0]);

@@ -14,15 +14,17 @@ let layout = {
     }
 }
 
+let electrodes = [];
+
 $('#upload').change((e)=>{
     let f = e.target.files[0];
     load(f).then((e)=>{
         electrodes = e;
         generateSelect();
+        selectNext();
     });
 })
 
-let electrodes = [];
 
 function generateSelect(){
     let select = $('#electrodesSelect');
@@ -69,7 +71,6 @@ function selectElectrode(){
     for(let i = 0; i < npass; i++){
         pselect.append(`<option value="${i+1}">${i+1}</option>`)
     }
-    // electrodes[e-1].plotly('plotly');
     Plotly.newPlot('plotly',electrodes[e-1].plotdata(),layout);
 }
 

@@ -1,3 +1,6 @@
+import {testImport} from './electrodes.js';
+testImport();
+
 let layout = {
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",

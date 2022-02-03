@@ -18,25 +18,25 @@ let electrodes = [];
 let fullPath = "";
 
 $('#uploadCV').change((e)=>{
-    let f = e.target.files[0];
     fullPath = document.getElementById('uploadCV').value;
-    loadCV(f).then((e)=>{
-        electrodes = e;
-        generateSelect();
-        selectNext();
-    });
+    load(e,loadCV);
 })
 
 $('#uploadEIS').change((e)=>{
-    let f = e.target.files[0];
     fullPath = document.getElementById('uploadEIS').value;
-    loadEIS(f).then((e)=>{
+    load(e,loadEIS);
+})
+
+function load(e,callback){
+    let f = e.target.files[0];
+    callback(f).then((e)=>{
         electrodes = e;
-        console.log(electrodes);
+        layout.xaxis.title = electrodes[0].xitem.toUpperCase();
+        layout.yaxis.title = electrodes[0].yitem.toUpperCase();
         generateSelect();
         selectNext();
     });
-})
+}
 
 
 function generateSelect(){

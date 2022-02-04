@@ -14,8 +14,8 @@ class Electrode{
     addPointEIS(f,m,a){
         let pass = 1;
         if(this.passes[pass-1] === undefined) this.passes[pass-1] = [];
-        this.xitem = 'a';
-        this.yitem = 'f';
+        this.xitem = 'f';
+        this.yitem = 'm';
         this.passes[pass-1].push({f:f,m:m,a:a});
     }
 

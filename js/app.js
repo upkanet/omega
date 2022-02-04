@@ -19,20 +19,29 @@ let fullPath = "";
 
 $('#uploadCV').change((e)=>{
     fullPath = document.getElementById('uploadCV').value;
+    layout.xaxis.type = 'linear';
+    layout.yaxis.type = 'linear';
     load(e,loadCV);
 })
 
 $('#uploadEIS').change((e)=>{
     fullPath = document.getElementById('uploadEIS').value;
+    layout.xaxis.type = 'log';
+    layout.yaxis.type = 'log';
     load(e,loadEIS);
 })
+
+function itemTitle(item){
+    let a = {vs:'Vs',v:'Tension',i:'Courant',f:'Frequence',m:'|Z|',a:'Phase'};
+    return a[item];
+}
 
 function load(e,callback){
     let f = e.target.files[0];
     callback(f).then((e)=>{
         electrodes = e;
-        layout.xaxis.title = electrodes[0].xitem.toUpperCase();
-        layout.yaxis.title = electrodes[0].yitem.toUpperCase();
+        layout.xaxis.title = itemTitle(electrodes[0].xitem);
+        layout.yaxis.title = itemTitle(electrodes[0].yitem);
         generateSelect();
         selectNext();
     });

@@ -40,11 +40,19 @@ function load(e,callback){
     let f = e.target.files[0];
     callback(f).then((e)=>{
         electrodes = e;
-        layout.xaxis.title = itemTitle(electrodes[0].xitem);
-        layout.yaxis.title = itemTitle(electrodes[0].yitem);
+        layout.xaxis.title = itemTitle(firstElectrode().xitem);
+        layout.yaxis.title = itemTitle(firstElectrode().yitem);
         generateSelect();
         selectNext();
     });
+}
+
+function firstElectrode(){
+    let i = 0;
+    while(electrodes[i] === undefined){
+        i++;
+    }
+    return electrodes[i];
 }
 
 
@@ -54,8 +62,10 @@ function generateSelect(){
     select.html('<option selected>-</option>');
     check.html('');
     for(let i = 0;i<electrodes.length;i++){
-        select.append(`<option value="${i+1}">Electrode #${i+1}</option>`);
-        check.append(`<input type="checkbox" class="btn-check el-check" id="E${i+1}" value="${i+1}"><label class="btn btn-outline-primary" for="E${i+1}">E${i+1}</label>`);
+        if(electrodes[i] !== undefined){
+            select.append(`<option value="${i+1}">Electrode #${i+1}</option>`);
+            check.append(`<input type="checkbox" class="btn-check el-check" id="E${i+1}" value="${i+1}"><label class="btn btn-outline-primary" for="E${i+1}">E${i+1}</label>`);
+        }
     }
     loadElectrodesFromCookie();
     $('.el-check').click(elCheckBinder);
@@ -86,13 +96,6 @@ function loadElectrodesFromCookie(){
 function selectElectrode(){
     let e = $('#electrodesSelect').val();
     if(isNaN(e)) return 0;
-
-    let npass = electrodes[e-1].passes.length;
-    let pselect = $('#passesSelect');
-    pselect.html('<option selected>-</option>');
-    for(let i = 0; i < npass; i++){
-        pselect.append(`<option value="${i+1}">${i+1}</option>`)
-    }
     Plotly.newPlot('plotly',electrodes[e-1].plotdata(),layout);
 }
 

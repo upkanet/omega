@@ -18,17 +18,21 @@ function loadCV(f){
             let en = '';
             let vs = '';
             lines.forEach(l => {
-                let d = l.split(';');
+                let d = l.split('\t');
                 if(d.length != 5) return 0;
+                if(d[0] == 'Column 1') return 0;
     
                 if(d[0] != '') en = Number(d[0]);
                 if(d[1] != '') vs = Number(d[1]);
-                let v = Number(d[2]);
-                let i = Number(d[3]);
-                let p = Number(d[4]);
+                let v = Number(d[3]);
+                let i = Number(d[4]);
+                let p = Number(d[2]);
                 if(electrodes[en-1] === undefined) electrodes[en-1] = new Electrode(en);
                 electrodes[en-1].addPointCV(p,vs,v,i);
             });
+            electrodes[0] = new Electrode(1);
+            electrodes[0].addPointCV(1,vs,0,0);
+            console.log(electrodes);
             resolve(electrodes);
         });
     });

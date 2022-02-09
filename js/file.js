@@ -27,7 +27,7 @@ function loadCV(f){
                 let v = Number(d[3]);
                 let i = Number(d[4]);
                 let p = Number(d[2]);
-                let ren = map[en];
+                let ren = map[en-1];
                 if(ren != 0){
                     if(electrodes[ren-1] === undefined) electrodes[ren-1] = new Electrode(ren);
                     electrodes[ren-1].addPointCV(p,vs,v,i);
